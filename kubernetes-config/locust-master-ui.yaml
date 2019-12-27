@@ -1,4 +1,4 @@
-# author:rootsongjc@gmail.com
+# Copyright 2015 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,25 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-kind: Deployment
-apiVersion: apps/v1
+
+
+kind: Service
+apiVersion: v1
 metadata:
-  name: sample-webapp
+  name: locust-master-ui
   labels:
-    name: sample-webapp
+    app: locust-master
 spec:
+  type: NodePort
+  ports:
+    - port: 8089
+      targetPort: loc-master-web
+      protocol: TCP
+      name: loc-master-web
   selector:
-    matchLabels:
-      name: sample-webapp
-  replicas: 5
-  template:
-    metadata:
-      labels:
-        name: sample-webapp
-    spec:
-      containers:
-      - name: sample-webapp
-        image: nickngch90/sample-webapp:latest
-        ports:
-        - containerPort: 8000
+    app: locust-master

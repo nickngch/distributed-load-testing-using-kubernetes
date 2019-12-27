@@ -13,31 +13,45 @@
 # limitations under the License.
 
 
-kind: ReplicationController
-apiVersion: v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: locust-worker
   labels:
-    name: locust
-    role: worker
+    app: locust-worker
 spec:
   replicas: 10
   selector:
-    name: locust
-    role: worker
+    matchLabels:
+      app: locust-worker
   template:
     metadata:
       labels:
-        name: locust
-        role: worker
+        app: locust-worker
     spec:
       containers:
         - name: locust
-          image: index.tenxcloud.com/jimmy/locust-tasks:latest
+          image: locustio/locust:0.13.5
+          imagePullPolicy: Always
           env:
             - name: LOCUST_MODE
-              value: worker
-            - name: LOCUST_MASTER
+              value: "slave"
+            - name: LOCUST_MASTER_HOST
               value: locust-master
-            - name: TARGET_HOST
+            - name: TARGET_URL
               value: http://sample-webapp:8000
+            - name: LOCUST_MASTER_PORT
+              value: '5557'
+            - name: LOCUSTFILE_PATH
+              value: /app/locust/locust.py
+          volumeMounts:
+          - name: locust-py
+            mountPath: /app/locust/locust.py
+            subPath: locust.py
+      volumes:
+        - name: locust-py
+          configMap:
+            name: locust-py
+            items:
+            - key: locust
+              path: locust.py 
